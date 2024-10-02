@@ -5,6 +5,7 @@ import {
   Get,
   Inject,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -67,7 +68,7 @@ export class ProductsController {
 
   @Patch(':id')
   async patchProduct(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() updateDto: UpdateProductDto,
   ) {
     return this.productsClient
