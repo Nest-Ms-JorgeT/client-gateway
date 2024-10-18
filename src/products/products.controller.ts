@@ -13,21 +13,21 @@ import {
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
 import { PaginationDto } from 'src/common';
-import { PRODUCTS_SERVICE } from 'src/config';
+import { NATS_SERVICE } from 'src/config';
 import { CreateProductDto } from 'src/products/dto/create-product.dto';
 import { UpdateProductDto } from 'src/products/dto/update-product.dto';
 
 @Controller('products')
 export class ProductsController {
   constructor(
-    @Inject(PRODUCTS_SERVICE) private readonly productsClient: ClientProxy,
+    @Inject(NATS_SERVICE) private readonly client: ClientProxy,
   ) {}
 
   @Post()
   async createProduct(@Body() createDto: CreateProductDto) {
     try {
       const product = await firstValueFrom(
-        this.productsClient.send({ cmd: 'create_product' }, createDto),
+        this.client.send({ cmd: 'create_product' }, createDto),
       );
       return product;
     } catch (error) {
@@ -37,7 +37,7 @@ export class ProductsController {
 
   @Get()
   findAllProducts(@Query() paginationDto: PaginationDto) {
-    return this.productsClient.send({ cmd: 'find_all_product' }, paginationDto);
+    return this.client.send({ cmd: 'find_all_product' }, paginationDto);
     //clients.send si necesito esperar una respuesta uso el send
     //emit solo envia y ya, no espera nada
   }
@@ -46,7 +46,7 @@ export class ProductsController {
   async findOneProduct(@Param('id') id: string) {
     try {
       const product = await firstValueFrom(
-        this.productsClient.send({ cmd: 'find_one_product' }, { id: id }),
+        this.client.send({ cmd: 'find_one_product' }, { id: id }),
       );
       return product;
     } catch (error) {
@@ -58,7 +58,7 @@ export class ProductsController {
   async deleteProduct(@Param('id') id: string) {
     try {
       const product = await firstValueFrom(
-        this.productsClient.send({ cmd: 'delete_product' }, { id: id }),
+        this.client.send({ cmd: 'delete_product' }, { id: id }),
       );
       return product;
     } catch (error) {
@@ -71,7 +71,7 @@ export class ProductsController {
     @Param('id', ParseIntPipe) id: string,
     @Body() updateDto: UpdateProductDto,
   ) {
-    return this.productsClient
+    return this.client
       .send(
         { cmd: 'update_product' },
         {
